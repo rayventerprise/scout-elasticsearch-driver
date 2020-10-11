@@ -2,6 +2,7 @@
 
 namespace ScoutElastic;
 
+use ScoutElastic\Builders\FilterBuilder;
 use ScoutElastic\Builders\SearchBuilder;
 
 class SearchRule
@@ -9,17 +10,16 @@ class SearchRule
     /**
      * The builder.
      *
-     * @var \ScoutElastic\Builders\SearchBuilder
+     * @var FilterBuilder
      */
     protected $builder;
 
     /**
      * SearchRule constructor.
      *
-     * @param  \ScoutElastic\Builders\SearchBuilder  $builder
-     * @return void
+     * @param FilterBuilder $builder
      */
-    public function __construct(SearchBuilder $builder)
+    public function __construct(FilterBuilder $builder)
     {
         $this->builder = $builder;
     }

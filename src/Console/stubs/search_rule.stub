@@ -21,4 +21,13 @@ class DummyClass extends SearchRule
     {
         //
     }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function buildCustomPayload()
+    {
+        //
+    }
 }
