@@ -375,6 +375,16 @@ class MySearch extends SearchRule
             ]
         ];
     }
+
+ 
+    // This method returns an array, that represents bool query.
+    public function buildCustomPayload()
+    {
+        return [
+            // Allows a higher than 10000 limit for paginator count.
+            'track_total_hits' => true
+        ];
+    }
 }
 ```
 

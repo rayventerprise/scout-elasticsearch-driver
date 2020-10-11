@@ -117,6 +117,14 @@ class ElasticEngine extends Engine
                         if ($options['highlight'] ?? true) {
                             $payload->setIfNotEmpty('body.highlight', $ruleEntity->buildHighlightPayload());
                         }
+
+                        if ($options['custom'] ?? true) {
+                            if ($customPayloads = $ruleEntity->buildCustomPayload()) {
+                                foreach ($customPayloads as $customKey => $customPayload) {
+                                    $payload->addIfNotEmpty('body.' . $customKey, $customPayload);
+                                }
+                            }
+                        }
                     } else {
                         continue;
                     }
@@ -249,7 +257,7 @@ class ElasticEngine extends Engine
         $count = 0;
 
         $this
-            ->buildSearchQueryPayloadCollection($builder, ['highlight' => false])
+            ->buildSearchQueryPayloadCollection($builder, ['highlight' => false, 'custom' => false])
             ->each(function ($payload) use (&$count) {
                 $result = ElasticClient::count($payload);
 
