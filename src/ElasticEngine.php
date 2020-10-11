@@ -151,7 +151,7 @@ class ElasticEngine extends Engine
 
                     if ($customPayloads = $ruleEntity->buildCustomPayload()) {
                         foreach ($customPayloads as $customKey => $customPayload) {
-                            $payload->addIfNotEmpty('body.' . $customKey, $customPayload);
+                            $payload->setIfNotEmpty('body.' . $customKey, $customPayload);
                         }
                     }
                 }
