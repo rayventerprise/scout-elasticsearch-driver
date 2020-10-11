@@ -117,14 +117,6 @@ class ElasticEngine extends Engine
                         if ($options['highlight'] ?? true) {
                             $payload->setIfNotEmpty('body.highlight', $ruleEntity->buildHighlightPayload());
                         }
-
-                        if ($options['custom'] ?? true) {
-                            if ($customPayloads = $ruleEntity->buildCustomPayload()) {
-                                foreach ($customPayloads as $customKey => $customPayload) {
-                                    $payload->addIfNotEmpty('body.' . $customKey, $customPayload);
-                                }
-                            }
-                        }
                     } else {
                         continue;
                     }
@@ -149,6 +141,22 @@ class ElasticEngine extends Engine
                 ->setIfNotEmpty('body.min_score', $builder->minScore)
                 ->setIfNotNull('body.from', $builder->offset)
                 ->setIfNotNull('body.size', $builder->limit);
+
+
+            if ($options['custom'] ?? true) {
+                $searchRules = $builder->rules ?: $builder->model->getSearchRules();
+
+                foreach ($searchRules as $searchRule) {
+                    $ruleEntity = new $searchRule($builder);
+
+                    if ($customPayloads = $ruleEntity->buildCustomPayload()) {
+                        foreach ($customPayloads as $customKey => $customPayload) {
+                            $payload->addIfNotEmpty('body.' . $customKey, $customPayload);
+                        }
+                    }
+                }
+            }
+
 
             foreach ($builder->wheres as $clause => $filters) {
                 $clauseKey = 'body.query.bool.filter.bool.'.$clause;
