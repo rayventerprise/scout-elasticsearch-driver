@@ -7,13 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class SearchBuilder extends FilterBuilder
 {
     /**
-     * The rules array.
-     *
-     * @var array
-     */
-    public $rules = [];
-
-    /**
      * SearchBuilder constructor.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
@@ -27,18 +20,5 @@ class SearchBuilder extends FilterBuilder
         parent::__construct($model, $callback, $softDelete);
 
         $this->query = $query;
-    }
-
-    /**
-     * Add a rule.
-     *
-     * @param  string|callable  $rule Search rule class name or function
-     * @return $this
-     */
-    public function rule($rule)
-    {
-        $this->rules[] = $rule;
-
-        return $this;
     }
 }

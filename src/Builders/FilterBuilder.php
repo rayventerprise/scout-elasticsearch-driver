@@ -9,6 +9,13 @@ use Laravel\Scout\Builder;
 class FilterBuilder extends Builder
 {
     /**
+     * The rules array.
+     *
+     * @var array
+     */
+    public $rules = [];
+
+    /**
      * The condition array.
      *
      * @var array
@@ -628,5 +635,18 @@ class FilterBuilder extends Builder
         return tap($this->withTrashed(), function () {
             $this->wheres['must'][] = ['term' => ['__soft_deleted' => 1]];
         });
+    }
+
+    /**
+     * Add a rule.
+     *
+     * @param  string|callable  $rule Search rule class name or function
+     * @return $this
+     */
+    public function rule($rule)
+    {
+        $this->rules[] = $rule;
+
+        return $this;
     }
 }
