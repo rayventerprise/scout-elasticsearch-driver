@@ -28,14 +28,17 @@ class BulkIndexer implements IndexerInterface
             $bulkPayload->set('refresh', $documentRefresh);
         }
 
-        $models->each(function ($model) use ($bulkPayload) {
-            if ($model::usesSoftDelete() && config('scout.soft_delete', false)) {
-                $model->pushSoftDeleteMetadata();
+        /** Preload any eager relationships.. */
+        $newModels = $this->withSearchableUsingModels(get_class($model), $models->pluck('id')->toArray());
+
+        $newModels->each(function ($newModel) use ($bulkPayload) {
+            if ($newModel::usesSoftDelete() && config('scout.soft_delete', false)) {
+                $newModel->pushSoftDeleteMetadata();
             }
 
             $modelData = array_merge(
-                $model->toSearchableArray(),
-                $model->scoutMetadata()
+                $newModel->toSearchableArray(),
+                $newModel->scoutMetadata()
             );
 
             if (empty($modelData)) {
@@ -43,7 +46,7 @@ class BulkIndexer implements IndexerInterface
             }
 
             $actionPayload = (new RawPayload)
-                ->set('index._id', $model->getScoutKey());
+                ->set('index._id', $newModel->getScoutKey());
 
             $bulkPayload
                 ->add('body', $actionPayload->get())
@@ -51,6 +54,26 @@ class BulkIndexer implements IndexerInterface
         });
 
         ElasticClient::bulk($bulkPayload->get());
+    }
+
+    /**
+     * Provide massive performance improvements as we will properly tap into eager loading..
+     */
+    public function withSearchableUsingModels($class, $modelIds) {
+        $self = new $class;
+
+        $softDelete = $class::usesSoftDelete() && config('scout.soft_delete', false);
+
+        return $self->newQuery()
+            ->whereIn('id', $modelIds)
+            ->when(true, function ($query) use ($self) {
+                $self->makeAllSearchableUsing($query);
+            })
+            ->when($softDelete, function ($query) {
+                $query->withTrashed();
+            })
+            ->orderBy($self->getKeyName())
+            ->get();
     }
 
     /**
