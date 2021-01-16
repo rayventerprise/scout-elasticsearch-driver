@@ -67,8 +67,10 @@ class BulkIndexer implements IndexerInterface
         return $self->newQuery()
             ->whereIn('id', $modelIds)
             ->when(true, function ($query) use ($self) {
-                if ( method_exists($self, 'makeAllSearchableUsing') ) {
+                try {
                     $self->makeAllSearchableUsing($query);
+                } catch ( \Exception $e) {
+                    // do nothing, method_exists returns incorrect.
                 }
             })
             ->when($softDelete, function ($query) {
